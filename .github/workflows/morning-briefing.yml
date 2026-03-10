@@ -31,4 +31,4 @@ jobs:
           NTFY_TOPIC_DEV:      ${{ secrets.NTFY_TOPIC_DEV }}
           NTFY_TOPIC:          ${{ secrets.NTFY_TOPIC }}
 
-        run: dotnet run --project MorningBriefing.cspro
+        run: dotnet run --project MorningBriefing.csproj
