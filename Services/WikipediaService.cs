@@ -1,33 +1,36 @@
 using System.Text.Json;
+using MorningBriefing.Models;
 
 namespace MorningBriefing.Services;
 
 public static class WikipediaService
 {
-    public static async Task<string> GetOnThisDayAsync()
-    {
-        var today = DateTime.UtcNow;
-        string url = $"https://api.wikimedia.org/feed/v1/wikipedia/en/onthisday/selected/{today.Month:D2}/{today.Day:D2}";
 
-        using var http = new HttpClient();
-        // Wikipedia asks for a User-Agent header
-        http.DefaultRequestHeaders.UserAgent.ParseAdd("MorningBriefing/1.0 (personal automation)");
+  private static readonly JsonSerializerOptions JsonOptions = new()
+  {
+    PropertyNameCaseInsensitive = true
+  };
 
-        var response = await http.GetAsync(url);
-        response.EnsureSuccessStatusCode();
+  public static async Task<string> GetOnThisDayAsync()
+  {
+    var today = DateTime.UtcNow;
+    string url = $"https://api.wikimedia.org/feed/v1/wikipedia/en/onthisday/selected/{today.Month:D2}/{today.Day:D2}";
 
-        var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        var events = json.RootElement.GetProperty("selected");
+    using var http = new HttpClient();
+    // Wikipedia asks for a User-Agent header
+    http.DefaultRequestHeaders.UserAgent.ParseAdd("MorningBriefing (personal automation)");
 
-        // Pick a random event from the list
-        var list = events.EnumerateArray().ToList();
-        if (list.Count == 0)
-            return "[Wikipedia] No 'On This Day' event found.";
+    var response = await http.GetAsync(url);
+    response.EnsureSuccessStatusCode();
 
-        var pick = list[Random.Shared.Next(list.Count)];
-        int year = pick.GetProperty("year").GetInt32();
-        string text = pick.GetProperty("text").GetString() ?? "N/A";
+    var data = JsonSerializer.Deserialize<WikipediaOnThisDayResponse>(await response.Content.ReadAsStringAsync(), JsonOptions)
+      ?? throw new InvalidOperationException("Failed to Deserialize Wikipedia response");
 
-        return $"[On This Day in {year}] {text}";
-    }
+    if (data.Selected.Count == 0)
+      return $"[Wikipedia] No 'On This Day' events were found.";
+
+    var pick = data.Selected[Random.Shared.Next(data.Selected.Count)];
+
+    return $"[On This Day in {pick.Year}] {pick.Text}";
+  }
 }

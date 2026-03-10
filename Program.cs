@@ -14,14 +14,17 @@ try
 
   var weather = await OpenWeatherService.GetSummaryAsync();
   dataChunks.Add(weather);
-  Console.WriteLine($"✅ Weather fetched");
+  Console.WriteLine($"Weather fetched");
 
-  Console.WriteLine($"D E B U G : Debbugging weather data and OpenWeather response:");
-  Console.WriteLine($"Collected data: {weather}");
-  Console.WriteLine($"dataChunks: {dataChunks}");
+  var wiki = await WikipediaService.GetOnThisDayAsync();
+  dataChunks.Add(wiki);
+  Console.WriteLine($"Wiki fetched");
+  Console.WriteLine($"D E B U G : Wikipedia debug, data coming back:\n"
+      + $"{wiki}");
 
   // The idea is, I can pass the raw data to an LLM and come back with a briefing.
-  // Currently, I will just join the strings that are coming back from each Service and will send those.
+  // Currently, I will just join the strings that are coming back from each Service and will send those to Ntfy for testing.
+  // Will look bad for sure though...
   string rawData = string.Join("\n\n", dataChunks);
 
   await NtfyService.SendAsync(rawData, AppEnv.Require("NTFY_TOPIC"));
@@ -30,6 +33,8 @@ try
 catch (Exception ex)
 {
   Console.Error.WriteLine($"Error: {ex.Message}");
+  await NtfyService.SendAsync($"Application crashed!\n " +
+      $"Error: {ex.Message} .", AppEnv.Require("NTFY_TOPIC_DEV"));
   Environment.Exit(1);
 }
 
