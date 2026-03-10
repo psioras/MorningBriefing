@@ -12,7 +12,7 @@ internal static class AppEnv
     if (string.IsNullOrWhiteSpace(value))
       throw new InvalidOperationException(
           $"Required environment variable '{key}' is not set. " +
-          $"Add it to your .env file (local) or GitHub secrets (CI).");
+          $"Add it to your .env file (local) or GitHub secrets.");
     return value;
   }
 
