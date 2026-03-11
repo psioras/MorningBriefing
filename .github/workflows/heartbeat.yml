@@ -1,0 +1,24 @@
+name: Heartbeat
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # daily at 00:00 UTC (whatever...)
+
+  workflow_dispatch:
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # allow push
+
+    steps:
+      - name: Checkout heartbeat branch
+        uses: actions/checkout@v4
+        with:
+          ref: heartbeat
+          persist-credentials: true
+      - name: Make scripts executable
+        run: chmod +x scripts/heartbeat.sh
+
+      - name: Run heartbeat
+        run: bash scripts/heartbeat.sh

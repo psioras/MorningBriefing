@@ -18,16 +18,13 @@ try
 
   var wiki = await WikipediaService.GetOnThisDayAsync();
   dataChunks.Add(wiki);
-  Console.WriteLine($"Wiki fetched");
-  Console.WriteLine($"D E B U G : Wikipedia debug, data coming back:\n"
-      + $"{wiki}");
+  Console.WriteLine($"Wikipedia 'On This Day' fetched");
 
-  // The idea is, I can pass the raw data to an LLM and come back with a briefing.
-  // Currently, I will just join the strings that are coming back from each Service and will send those to Ntfy for testing.
-  // Will look bad for sure though...
   string rawData = string.Join("\n\n", dataChunks);
 
-  await NtfyService.SendAsync(rawData, AppEnv.Require("NTFY_TOPIC"));
+  var LLMResponse = await LLMService.GetResponseAsync(rawData);
+  Console.WriteLine($"D E B U G : LLM response generated: {LLMResponse}");
+  await NtfyService.SendAsync(LLMResponse, AppEnv.Require("NTFY_TOPIC"));
 
 }
 catch (Exception ex)
