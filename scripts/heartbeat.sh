@@ -1,17 +1,18 @@
-#!/usr/bin/env bash
+#!/bin/bash
+set -e
 
-set -euo pipefail
+echo "Heartbeat script starting..."
 
-# Write UTC timestamp to heartbeat.txt
-date -u +"%Y-%m-%dT%H:%M:%SZ" > heartbeat.txt
-
-# Configure git user for the action
+# Configure git identity for the commit
 git config user.name "github-actions[bot]"
-git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+git config user.email "github-actions[bot]@users.noreply.github.com"
+
+# Update the timestamp file
+echo "Last heartbeat: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" > heartbeat.txt
+
+# Stage, commit and push
 git add heartbeat.txt
+git commit -m "heartbeat: $(date -u '+%Y-%m-%d')"
+git push
 
-# commit only if changed
-git commit -m "chore(heartbeat): update timestamp $(date -u +%Y%m%dT%H%M%SZ)" || echo "No changes to commit"
-
-# Push to the heartbeat branch (create it if doesn't exist)
-git push origin HEAD:refs/heads/heartbeat --no-verify || echo "Push failed"
+echo "Heartbeat done!"
