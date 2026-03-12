@@ -30,5 +30,9 @@ jobs:
           OPENWEATHER_LON:     ${{ secrets.OPENWEATHER_LON }}
           NTFY_TOPIC_DEV:      ${{ secrets.NTFY_TOPIC_DEV }}
           NTFY_TOPIC:          ${{ secrets.NTFY_TOPIC }}
+          LLM_ENDPOINT:        ${{ secrets.LLM_ENDPOINT }}
+          LLM_API_KEY:         ${{ secrets.LLM_API_KEY }}
+          LLM_MODEL:           ${{ secrets.LLM_MODEL }} 
 
         run: dotnet run --project MorningBriefing.csproj
+
